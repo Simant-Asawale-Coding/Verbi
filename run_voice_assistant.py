@@ -10,6 +10,7 @@ from voice_assistant.text_to_speech import text_to_speech
 from voice_assistant.utils import delete_file
 from voice_assistant.config import Config
 from voice_assistant.api_key_manager import get_transcription_api_key, get_response_api_key, get_tts_api_key
+from voice_assistant.person_classifier import Person_classifier
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -27,7 +28,7 @@ def main():
     chat_history = [
         {"role": "system", "content": """ You are a helpful Assistant called Verbi. 
          You are friendly and fun and you will help the users with their requests.
-         Your answers are short and concise. """}
+         Your answers are short and concise and on point. """}
     ]
 
     while True:
@@ -35,6 +36,9 @@ def main():
             # Record audio from the microphone and save it as 'test.wav'
             record_audio(Config.INPUT_AUDIO)
 
+            #person classifier
+            path_audio='test.wav'
+            print(Person_classifier(path_to_audio=path_audio))
             # Get the API key for transcription
             transcription_api_key = get_transcription_api_key()
             
@@ -49,6 +53,36 @@ def main():
 
             # Check if the user wants to exit the program
             if "goodbye" in user_input.lower() or "arrivederci" in user_input.lower():
+                # Append the user's input to the chat history
+                chat_history.append({"role": "user", "content": user_input})
+
+                # Get the API key for response generation
+                response_api_key = get_response_api_key()
+
+                # Generate a response
+                response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.    LOCAL_MODEL_PATH)
+                logging.info(Fore.CYAN + "Response: " + response_text + Fore.RESET)
+
+                # Append the assistant's response to the chat history
+                chat_history.append({"role": "assistant", "content": response_text})
+
+                # Determine the output file format based on the TTS model
+                if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts' or     Config.TTS_MODEL == 'cartesia':
+                    output_file = 'output.mp3'
+                else:
+                    output_file = 'output.wav'
+
+                # Get the API key for TTS
+                tts_api_key = get_tts_api_key()
+
+                # Convert the response text to speech and save it to the appropriate file
+                text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
+
+                # Play the generated speech audio
+                if Config.TTS_MODEL=="cartesia":
+                    pass
+                else:
+                    play_audio(output_file)            
                 break
 
             # Append the user's input to the chat history

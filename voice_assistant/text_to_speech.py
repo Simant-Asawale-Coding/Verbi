@@ -76,8 +76,8 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
             # sf.write(output_file_path, buffer, rate) 
 
             client = Cartesia(api_key=api_key)
-            # voice_name = "Barbershop Man"
-            voice_id = "f114a467-c40a-4db8-964d-aaba89cd08fa"#"a0e99841-438c-4a64-b679-ae501e7d6091"
+            # voice_name = "Female Nurse"
+            voice_id = "5c42302c-194b-4d0c-ba1a-8cb485c84ab9"#"a0e99841-438c-4a64-b679-ae501e7d6091"
             voice = client.voices.get(id=voice_id)
 
             # You can check out our models at https://docs.cartesia.ai/getting-started/available-models
