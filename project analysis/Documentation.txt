@@ -1,0 +1,23 @@
+1: Setup error- the simpleaudio setup does not work well unless build tools is installed and we have the latest windows sdk version. Once the sdk is correctly installed, the dependencies can be installed easily.
+
+2:Audio.py: 2 approaches:
+
+i-
+
+keep the original code as it is, where we use pyaudio for capturing the audio, which indeed is dependant on the 	ffmpeg tool. Installing the ffmpeg library using pip won't work here as we require the entire tool containing 		ffplay,ffprobe and ffmpeg. To install the tool navigate to: https://www.gyan.dev/ffmpeg/builds/ and then select 		the ffmpeg-release-full.7z.
+After downloading the file, unzip it using 7z(can be downloaded through google directly)
+Further after unzipping, navigate to the bin folder and then copy the path and add it to the system's environment 	
+variables. The original code should work.
+
+ii- 
+
+If we use simpleaudio code(commented in the same file or can be generated through chatgpt) instead of the 	original code, we need to install the simpleaudio library. However if the system does not have the correct version 	of windows build tools and SDK installed, then the wheel build for simpleaudio will not work and error will be 			occurred. To resolve this install latest version of windows SDK from:
+https://developer.microsoft.com/en-us/windows/downloads/windows-sdk/
+After installation also ensure that Windows build tools is installed.
+This should work fine.
+
+3:Keys: add keys to the example.env file and then rename it to .env
+
+4:Model: Procced to the config folder and then update the model provider names. Typically groq,cartesia and deepgram for opensource.
+
+

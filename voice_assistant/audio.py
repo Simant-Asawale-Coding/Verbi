@@ -6,7 +6,111 @@ import logging
 import pydub
 from io import BytesIO
 from pydub import AudioSegment
+from voice_assistant.config import Config
+import threading
 
+#############
+# voice_assistant/main.py
+
+import logging
+from colorama import Fore, init
+from voice_assistant.transcription import transcribe_audio
+from voice_assistant.config import Config
+from voice_assistant.api_key_manager import get_transcription_api_key, get_response_api_key, get_tts_api_key
+
+
+###################################################
+import threading
+
+# Define an event to control the listener's behavior
+#stop_listening_event = threading.Event()
+#
+#def listen_for_wake_word(recognizer, microphone, wake_word):
+#    while not stop_listening_event.is_set():
+#        try:
+#            with microphone as source:
+#                audio = recognizer.listen(source, phrase_time_limit=2)
+#                try:
+#                    text = recognizer.recognize_google(audio, language="en-US")
+#                    if text.lower() == wake_word:
+#                        print("Wake word detected!")
+#                        # Stop listening for wake word
+#                        stop_listening_event.set()
+#                        record_audio(Config.INPUT_AUDIO)  # Call the record_audio function
+#                except sr.UnknownValueError:
+#                    pass
+#                except sr.RequestError:
+#                    pass
+#        except sr.WaitTimeoutError:
+#            pass
+#
+#def listener_main():
+#    recognizer = sr.Recognizer()
+#    microphone = sr.Microphone()
+#    wake_word = "hey alex"
+#
+#    # Start the wake word listener in a separate thread
+#    wake_word_listener = threading.Thread(target=listen_for_wake_word, args=(recognizer, microphone, wake_word))
+#    wake_word_listener.daemon = True
+#    wake_word_listener.start()
+#
+#    # Keep the main thread running to keep the program alive
+#    while True:
+#        if stop_listening_event.is_set():
+#            break
+
+###################################################
+def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy_threshold=2000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
+    """
+    Record audio from the microphone and save it as an MP3 file.
+    
+    Args:
+    file_path (str): The path to save the recorded audio file.
+    timeout (int): Maximum time to wait for a phrase to start (in seconds).
+    phrase_time_limit (int): Maximum time for the phrase to be recorded (in seconds).
+    retries (int): Number of retries if recording fails.
+    energy_threshold (int): Energy threshold for considering whether a given chunk of audio is speech or not.
+    pause_threshold (float): How much silence the recognizer interprets as the end of a phrase (in seconds).
+    phrase_threshold (float): Minimum length of a phrase to consider for recording (in seconds).
+    dynamic_energy_threshold (bool): Whether to enable dynamic energy threshold adjustment.
+    calibration_duration (float): Duration of the ambient noise calibration (in seconds).
+    """
+    recognizer = sr.Recognizer()
+    recognizer.energy_threshold = energy_threshold
+    recognizer.pause_threshold = pause_threshold
+    recognizer.phrase_threshold = phrase_threshold
+    recognizer.dynamic_energy_threshold = dynamic_energy_threshold
+    for attempt in range(retries):
+        try:
+            with sr.Microphone() as source:
+                recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
+                logging.info("listening started")
+                # Listen for the first phrase and extract it into audio data
+                audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
+                logging.info("listening complete")
+                # Convert the recorded audio data to an MP3 file
+                wav_data = audio_data.get_wav_data()
+                audio_segment = pydub.AudioSegment.from_wav(BytesIO(wav_data))
+                mp3_data = audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
+                # Get the API key for transcription
+                transcription_api_key = get_transcription_api_key()
+                # Transcribe the audio file
+                user_input = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.LISTEN_AUDIO, Config.LOCAL_MODEL_PATH)
+                # Check if the user wants to exit the program
+                print(user_input)
+                if "alex" in user_input.lower():
+                    print('Wake up word detected')
+                    return True
+                
+        except sr.WaitTimeoutError:
+            logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
+        except Exception as e:
+            logging.error(f"Failed to record audio: {e}")
+            break
+    else:
+        logging.error("Recording failed after all retries")
+
+###################################################
 def record_audio(file_path, timeout=10, phrase_time_limit=None, retries=3, energy_threshold=2000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
     """
     Record audio from the microphone and save it as an MP3 file.
