@@ -8,7 +8,7 @@ from io import BytesIO
 from pydub import AudioSegment
 from voice_assistant.config import Config
 import threading
-
+import datetime
 #############
 # voice_assistant/main.py
 
@@ -93,6 +93,8 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                 wav_data = audio_data.get_wav_data()
                 audio_segment = pydub.AudioSegment.from_wav(BytesIO(wav_data))
                 mp3_data = audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
+                
+                
                 # Get the API key for transcription
                 transcription_api_key = get_transcription_api_key()
                 # Transcribe the audio file
@@ -180,6 +182,9 @@ def record_audio(file_path, timeout=10, phrase_time_limit=None, retries=3, energ
                 wav_data = audio_data.get_wav_data()
                 audio_segment = pydub.AudioSegment.from_wav(BytesIO(wav_data))
                 mp3_data = audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
+                timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                file_export='uploads\\'+timestamp+file_path
+                audio_segment.export(file_export, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
                 return
         except sr.WaitTimeoutError:
             logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
