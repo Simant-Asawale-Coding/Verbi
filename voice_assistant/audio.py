@@ -106,7 +106,7 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                     chat_history = [
         {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
          You are friendly and fun and you will help the users with their requests.
-         Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. """}
+         Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. u only generate 4 to 5 word replies. """}
     ]
                     # Append the user's input to the chat history
                     chat_history.append({"role": "user", "content": user_input})
@@ -183,7 +183,7 @@ def record_audio(file_path, timeout=10, phrase_time_limit=None, retries=3, energ
                 audio_segment = pydub.AudioSegment.from_wav(BytesIO(wav_data))
                 mp3_data = audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
                 timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-                file_export='uploads\\'+timestamp+file_path
+                file_export='uploads\\'+'Aditya'+timestamp+file_path
                 audio_segment.export(file_export, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
                 return
         except sr.WaitTimeoutError:
