@@ -26,11 +26,11 @@ def main():
     Main function to run the voice assistant.
     """
     chat_history = [
-        {"role": "system", "content": """ You are a helpful Assistant called Verbi. 
+        {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
          You are friendly and fun and you will help the users with their requests.
-         Your answers are short and concise and on point. """}
+         Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. """}
     ]
-    flag=listen_audio(Config.LISTEN_AUDIO)
+    flag,chat_history=listen_audio(Config.LISTEN_AUDIO)
     # Start the wake word listener in a separate thread
 
     if flag==True:
@@ -41,7 +41,7 @@ def main():
                 record_audio(Config.INPUT_AUDIO)
 
                 #person classifier
-                path_audio='test.wav'
+                path_audio=Config.INPUT_AUDIO
                 print(Person_classifier(path_to_audio=path_audio))
                 # Get the API key for transcription
                 transcription_api_key = get_transcription_api_key()
