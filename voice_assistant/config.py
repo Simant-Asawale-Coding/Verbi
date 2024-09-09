@@ -20,6 +20,9 @@ class Config:
     ELEVENLABS_API_KEY (str): API key for ElevenLabs services.
     LOCAL_MODEL_PATH (str): Path to the local model.
     """
+
+    # adding username for user verification
+    User="simant"
     # Model selection
     TRANSCRIPTION_MODEL = 'groq'  # possible values: openai, groq, deepgram, fastwhisperapi
     RESPONSE_MODEL = 'groq'  # possible values: openai, groq, ollama

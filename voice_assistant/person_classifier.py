@@ -50,22 +50,22 @@ def Person_classifier(path_to_audio):
     mfccs_scaled_features = mfccs_scaled_features.reshape(1, -1)
     
     # Check the shape of the reshaped features
-    print("Reshaped feature shape for prediction:", mfccs_scaled_features.shape)
+    #print("Reshaped feature shape for prediction:", mfccs_scaled_features.shape)
     
     ######below code for naive bayes model
     # Make a prediction
     predictions = model.predict(mfccs_scaled_features)
     
     # Check the predictions
-    print("Predictions shape:", predictions.shape)
-    print("Predictions:", predictions)
+    #print("Predictions shape:", predictions.shape)
+    #print("Predictions:", predictions)
     
     # Convert prediction to label
     predicted_label = encoder.inverse_transform(predictions)
     
     print("Predicted Label:", predicted_label)
 
-    return predicted_label
+    return predicted_label[0]
 
 
 ###### below code for keras model

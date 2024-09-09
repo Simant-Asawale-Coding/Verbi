@@ -25,6 +25,9 @@ def main():
     """
     Main function to run the voice assistant.
     """
+    #ask user for user id
+    Config.User=input('Please enter Your User Id: ')
+    
     chat_history = [
         {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
          You are friendly and fun and you will help the users with their requests.

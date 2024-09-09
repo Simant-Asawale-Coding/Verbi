@@ -9,7 +9,17 @@ from pydub import AudioSegment
 from voice_assistant.config import Config
 import threading
 import datetime
+from voice_assistant.person_classifier import Person_classifier
+from colorama import Fore, init
 #############
+#SETUP COLORAMA AND LOGGING
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Initialize colorama
+init(autoreset=True)
+
+
 # voice_assistant/main.py
 
 import logging
@@ -85,10 +95,10 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
         try:
             with sr.Microphone() as source:
                 recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
-                logging.info("listening started")
+                logging.info(Fore.YELLOW+"listening started" + Fore.RESET)
                 # Listen for the first phrase and extract it into audio data
                 audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
-                logging.info("listening complete")
+                logging.info(Fore.LIGHTGREEN_EX+"listening complete" + Fore.RESET)
                 # Convert the recorded audio data to an MP3 file
                 wav_data = audio_data.get_wav_data()
                 audio_segment = pydub.AudioSegment.from_wav(BytesIO(wav_data))
@@ -101,44 +111,49 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                 user_input = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.LISTEN_AUDIO, Config.LOCAL_MODEL_PATH)
                 # Check if the user wants to exit the program
                 print(user_input)
+
+                user_label=Person_classifier(file_path)
                 if "ivy" in user_input.lower() or "iv" in user_input.lower():
-                    print('Wake up word detected')
-                    chat_history = [
-        {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
-         You are friendly and fun and you will help the users with their requests.
-         Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. u only generate 4 to 5 word replies. """}
-    ]
-                    # Append the user's input to the chat history
-                    chat_history.append({"role": "user", "content": user_input})
+                    logging.info(Fore.BLUE+'Wake up word detected' + Fore.RESET)
+                    if user_label==Config.User :
+                        
+                        logging.info(Fore.LIGHTCYAN_EX+'Welcome '+ user_label.capitalize() + Fore.RESET)
+                        chat_history = [
+            {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
+             You are friendly and fun and you will help the users with their requests.
+             Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. u only generate 4 to 5 word replies. """}
+        ]
+                        # Append the user's input to the chat history
+                        chat_history.append({"role": "user", "content": user_input})
 
-                    # Get the API key for response generation
-                    response_api_key = get_response_api_key()
+                        # Get the API key for response generation
+                        response_api_key = get_response_api_key()
 
-                    # Generate a response
-                    response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.    LOCAL_MODEL_PATH)
+                        # Generate a response
+                        response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.    LOCAL_MODEL_PATH)
 
-                    # Append the assistant's response to the chat history
-                    chat_history.append({"role": "assistant", "content": response_text})
+                        # Append the assistant's response to the chat history
+                        chat_history.append({"role": "assistant", "content": response_text})
 
-                    # Determine the output file format based on the TTS model
-                    if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts' or     Config.TTS_MODEL == 'cartesia':
-                        output_file = 'output.mp3'
-                    else:
-                        output_file = 'output.wav'
+                        # Determine the output file format based on the TTS model
+                        if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts' or     Config.TTS_MODEL == 'cartesia':
+                            output_file = 'output.mp3'
+                        else:
+                            output_file = 'output.wav'
 
-                    # Get the API key for TTS
-                    tts_api_key = get_tts_api_key()
+                        # Get the API key for TTS
+                        tts_api_key = get_tts_api_key()
 
-                    # Convert the response text to speech and save it to the appropriate file
-                    text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
+                        # Convert the response text to speech and save it to the appropriate file
+                        text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
 
-                    # Play the generated speech audio
-                    if Config.TTS_MODEL=="cartesia":
-                        pass
-                    else:
-                        play_audio(output_file)
+                        # Play the generated speech audio
+                        if Config.TTS_MODEL=="cartesia":
+                            pass
+                        else:
+                            play_audio(output_file)
 
-                    return True, chat_history
+                        return True, chat_history
                 
         except sr.WaitTimeoutError:
             logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
@@ -172,12 +187,12 @@ def record_audio(file_path, timeout=10, phrase_time_limit=None, retries=3, energ
     for attempt in range(retries):
         try:
             with sr.Microphone() as source:
-                logging.info("Calibrating for ambient noise...")
+                logging.info(Fore.YELLOW+"Calibrating for ambient noise..."  + Fore.RESET)
                 recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
-                logging.info("Recording started")
+                logging.info(Fore.RED+"Recording started" + Fore.RESET)
                 # Listen for the first phrase and extract it into audio data
                 audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
-                logging.info("Recording complete")
+                logging.info(Fore.GREEN+"Recording complete" + Fore.RESET)
                 # Convert the recorded audio data to an MP3 file
                 wav_data = audio_data.get_wav_data()
                 audio_segment = pydub.AudioSegment.from_wav(BytesIO(wav_data))
@@ -204,6 +219,7 @@ def play_audio(file_path):
     try:
         pygame.mixer.init()
         pygame.mixer.music.load(file_path)
+        # Convert the recorded audio data to an MP3 file
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
             time.sleep(0.1)

@@ -10,6 +10,7 @@ from cartesia import Cartesia
 import pyaudio
 import soundfile as sf
 import json
+import datetime
 
 
 from voice_assistant.local_tts_generation import generate_audio_file_melotts
@@ -95,6 +96,9 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
 
             stream = None
 
+            # Buffer to collect audio data for saving
+            audio_data = []
+
             # Generate and stream audio
             for output in client.tts.sse(
                 model_id=model_id,
@@ -104,6 +108,8 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
                 output_format=output_format,
             ):
                 buffer = output["audio"]
+                # Append buffer to audio_data list to save later
+                audio_data.append(buffer)
 
                 if not stream:
                     stream = p.open(format=pyaudio.paFloat32, channels=1, rate=rate, output=True)
@@ -114,6 +120,12 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
             stream.stop_stream()
             stream.close()
             p.terminate()
+
+            # Save the audio data to a file
+            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+            output_file_path = "outputs/+cartesia_" + timestamp + "_generated_audio.wav"
+            sf.write(output_file_path, b"".join(audio_data), rate)
+            print(f"Audio saved to {output_file_path}")
 
 
 
