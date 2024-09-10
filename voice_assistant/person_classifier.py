@@ -64,6 +64,7 @@ def Person_classifier(path_to_audio):
     predicted_label = encoder.inverse_transform(predictions)
     
     print("Predicted Label:", predicted_label)
+    print('from labels: ', predicted_label[0])
 
     return predicted_label[0]
 

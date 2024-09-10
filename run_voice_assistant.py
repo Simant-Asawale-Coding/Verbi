@@ -37,11 +37,12 @@ def main():
     # Start the wake word listener in a separate thread
 
     #Autheticate the user
-    authenticated = False
-    while not authenticated:
-        authenticated = login_or_register()
-
+    #authenticated = False
+    #while not authenticated:
+    #    authenticated = login_or_register()
+    authenticated = login_or_register()
     close_connection()
+    
     if flag==True and authenticated==True:
             while True:
              try:

@@ -52,6 +52,15 @@ class Config:
     LISTEN_AUDIO= "listen.wav"
     PASSWORD_LOCAL='password.wav'
     USER_LOCAL='user.wav'
+    SATISFACTION_LOCAL='yes_or_no.wav'
+
+    #set classifier label counts
+    aditya=0
+    simant=0
+    swarali=0
+
+    #set user id variable for verifying if voice and id matches
+    user_id=''
 
     @staticmethod
     def validate_config():

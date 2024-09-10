@@ -113,9 +113,19 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                 # Check if the user wants to exit the program
                 print(user_input)
 
-                user_label=Person_classifier(file_path)
+                
+                
                 if "ivy" in user_input.lower() or "iv" in user_input.lower():
                     logging.info(Fore.BLUE+'Wake up word detected' + Fore.RESET)
+                    user_label=Person_classifier(file_path)
+                    if user_label=='Simant(AS3473)':
+                        Config.simant=Config.simant+1
+                    elif user_label=='Swarali(AS3469)':
+                        Config.swarali=Config.swarali+1
+                    elif user_label=='Aditya(AS3475)':
+                        Config.aditya=Config.aditya+1
+
+                    print('Simant:',Config.simant,' Swarali:',Config.swarali,' Aditya:',Config.aditya)
                     
                     #if user_label==Config.User :
                         
@@ -226,7 +236,7 @@ def play_audio(file_path):
 
 
 #RECORD PASSWORD
-def record_password(file_path, timeout=10, phrase_time_limit=4, retries=3, energy_threshold=2000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
+def record_password(file_path, timeout=20, phrase_time_limit=4, retries=3, energy_threshold=4000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
     """
     Record audio from the microphone and save it as an MP3 file.
     
@@ -261,6 +271,7 @@ def record_password(file_path, timeout=10, phrase_time_limit=4, retries=3, energ
                 mp3_data = audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
                 #timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                 audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
+                
                 return
         except sr.WaitTimeoutError:
             logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
@@ -270,7 +281,7 @@ def record_password(file_path, timeout=10, phrase_time_limit=4, retries=3, energ
     else:
         logging.error("Recording failed after all retries")
 
-def record_userid(file_path, timeout=10, phrase_time_limit=4, retries=3, energy_threshold=2000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
+def record_userid(file_path, timeout=20, phrase_time_limit=4, retries=3, energy_threshold=2000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
     """
     Record audio from the microphone and save it as an MP3 file.
     
@@ -305,7 +316,9 @@ def record_userid(file_path, timeout=10, phrase_time_limit=4, retries=3, energy_
                 mp3_data = audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
                 #timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                 audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
+
                 return
+            
         except sr.WaitTimeoutError:
             logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
         except Exception as e:
@@ -314,6 +327,33 @@ def record_userid(file_path, timeout=10, phrase_time_limit=4, retries=3, energy_
     else:
         logging.error("Recording failed after all retries")
 
+def record_satisfaction(file_path, timeout=15, phrase_time_limit=2, retries=3, energy_threshold=4000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
+
+    recognizer = sr.Recognizer()
+    recognizer.energy_threshold = energy_threshold
+    recognizer.pause_threshold = pause_threshold
+    recognizer.phrase_threshold = phrase_threshold
+    recognizer.dynamic_energy_threshold = dynamic_energy_threshold
+    for attempt in range(retries):
+        try:
+            with sr.Microphone() as source:
+                logging.info(Fore.YELLOW+"Calibrating for ambient noise..."  + Fore.RESET)
+                recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
+                logging.info(Fore.RED+"Please say yes or no..." + Fore.RESET)
+                # Listen for the first phrase and extract it into audio data
+                audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
+                logging.info(Fore.GREEN+"recording complete" + Fore.RESET)
+                # Convert the recorded audio data to an MP3 file
+                wav_data = audio_data.get_wav_data()
+                audio_segment = pydub.AudioSegment.from_wav(BytesIO(wav_data))
+                mp3_data = audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
+                #timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                audio_segment.export(file_path, format="WAV", bitrate="128k", parameters=["-ar", "22050", "-ac", "1"])
+                return
+        except sr.WaitTimeoutError:
+            logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
+        except Exception as e:
+            logging.error(f"Failed to record audio: {e}")
 #import sounddevice as sd
 #import soundfile as sf
 #import simpleaudio as sa
