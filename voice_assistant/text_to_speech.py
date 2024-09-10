@@ -109,7 +109,7 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
             ):
                 buffer = output["audio"]
                 # Append buffer to audio_data list to save later
-                audio_data.append(buffer)
+                #audio_data.append(buffer)
 
                 if not stream:
                     stream = p.open(format=pyaudio.paFloat32, channels=1, rate=rate, output=True)
@@ -122,9 +122,9 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
             p.terminate()
 
             # Save the audio data to a file
-            timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-            output_file_path = "outputs/+cartesia_" + timestamp + "_generated_audio.wav"
-            sf.write(output_file_path, b"".join(audio_data), rate)
+            # Save the collected audio data to a file
+            audio_bytes = b''.join(audio_data)  # Concatenate all audio buffers into one
+            sf.write(output_file_path, audio_bytes, rate)  # Save as a WAV file
             print(f"Audio saved to {output_file_path}")
 
 

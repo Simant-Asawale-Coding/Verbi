@@ -29,8 +29,8 @@ from tensorflow.keras.models import load_model
 #    prediction=encoder.inverse_transform(predicted_class_index)
 #    return prediction
 
-model = joblib.load(r"C:\Users\simant.asawale\Desktop\POC1-NEW\Verbi\classifying_model\audio_classification_nb2.pkl")
-encoder = joblib.load(r"C:\Users\simant.asawale\Desktop\POC1-NEW\Verbi\classifying_model\label_encoder.pkl")
+model = joblib.load(r"C:\Users\simant.asawale\Desktop\POC1-NEW\Verbi\classifying_model\final_audio_classification_nb.pkl")
+encoder = joblib.load(r"C:\Users\simant.asawale\Desktop\POC1-NEW\Verbi\classifying_model\final_label_encoder.pkl")
 
 def Person_classifier(path_to_audio):
 

@@ -11,7 +11,7 @@ from voice_assistant.utils import delete_file
 from voice_assistant.config import Config
 from voice_assistant.api_key_manager import get_transcription_api_key, get_response_api_key, get_tts_api_key
 from voice_assistant.person_classifier import Person_classifier
-
+from voice_assistant.database import login_or_register, close_connection
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -26,8 +26,8 @@ def main():
     Main function to run the voice assistant.
     """
     #ask user for user id
-    Config.User=input('Please enter Your User Id: ')
-    
+    #Config.User=input('Please enter Your User Id: ')
+
     chat_history = [
         {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
          You are friendly and fun and you will help the users with their requests.
@@ -36,7 +36,13 @@ def main():
     flag,chat_history=listen_audio(Config.LISTEN_AUDIO)
     # Start the wake word listener in a separate thread
 
-    if flag==True:
+    #Autheticate the user
+    authenticated = False
+    while not authenticated:
+        authenticated = login_or_register()
+
+    close_connection()
+    if flag==True and authenticated==True:
             while True:
              try:
 
