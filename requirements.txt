@@ -36,3 +36,7 @@ soundfile
 ollama
 pydub
 simpleaudio
+tensorflow
+ffmpeg
+librosa
+joblib
