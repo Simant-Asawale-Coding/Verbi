@@ -1,16 +1,16 @@
  #voice_assistant/audio.py
-import speech_recognition as sr
-import pygame
+import speech_recognition as sr # type: ignore
+import pygame # type: ignore
 import time
 import logging
-import pydub
+import pydub # type: ignore
 from io import BytesIO
-from pydub import AudioSegment
+from pydub import AudioSegment # type: ignore
 from voice_assistant.config import Config
 import threading
 import datetime
 from voice_assistant.person_classifier import Person_classifier
-from colorama import Fore, init
+from colorama import Fore, init # type: ignore
 #############
 #SETUP COLORAMA AND LOGGING
 # Configure logging
@@ -28,6 +28,7 @@ from voice_assistant.response_generation import generate_response
 from voice_assistant.text_to_speech import text_to_speech
 from voice_assistant.config import Config
 from voice_assistant.api_key_manager import get_transcription_api_key, get_response_api_key, get_tts_api_key
+from voice_assistant.voice_deepfake_detector import detect_fake
 #from voice_assistant.database import login_or_register,close_connection
 
 
@@ -118,14 +119,22 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                 if "ivy" in user_input.lower() or "iv" in user_input.lower():
                     logging.info(Fore.BLUE+'Wake up word detected' + Fore.RESET)
                     user_label=Person_classifier(file_path)
+                    deepfake_label= detect_fake(file_path)
+                    print(deepfake_label)
+                    if deepfake_label == "FAKE":
+                        Config.deepfake=Config.deepfake+1
                     if user_label=='Simant(AS3473)':
                         Config.simant=Config.simant+1
+                        Config.ivy_simant=Config.ivy_simant+1
                     elif user_label=='Swarali(AS3469)':
                         Config.swarali=Config.swarali+1
+                        Config.ivy_swarali=Config.ivy_swarali+1
                     elif user_label=='Aditya(AS3475)':
                         Config.aditya=Config.aditya+1
+                        Config.ivy_aditya=Config.ivy_aditya+1
 
                     print('Simant:',Config.simant,' Swarali:',Config.swarali,' Aditya:',Config.aditya)
+                    print('IVY Simant:',Config.ivy_simant,' IVY Swarali:',Config.ivy_swarali,' IVY Aditya:',Config.ivy_aditya)
                     
                     #if user_label==Config.User :
                         

@@ -5,6 +5,7 @@ from voice_assistant.transcription import transcribe_audio
 from voice_assistant.api_key_manager import get_transcription_api_key
 from voice_assistant.config import Config
 from voice_assistant.person_classifier import Person_classifier
+from voice_assistant.voice_deepfake_detector import detect_fake
 import string
 
 
@@ -138,6 +139,10 @@ def register_user():
 def authenticate_user():
     user_id=record_user_id()
     user_label=Person_classifier(Config.USER_LOCAL)
+    deepfake_label1=detect_fake(Config.USER_LOCAL)
+    print(deepfake_label1)
+    if deepfake_label1 == "FAKE":
+        Config.deepfake=Config.deepfake+1
     if user_label=='Simant(AS3473)':
         Config.simant=Config.simant+1
     elif user_label=='Swarali(AS3469)':
@@ -151,6 +156,10 @@ def authenticate_user():
 
     user_password=record_user_password()
     user_label=Person_classifier(Config.PASSWORD_LOCAL)
+    deepfake_label2=detect_fake(Config.PASSWORD_LOCAL)
+    print(deepfake_label2)
+    if deepfake_label2 == "FAKE":
+        Config.deepfake=Config.deepfake+1
     if user_label=='Simant(AS3473)':
         Config.simant=Config.simant+1
     elif user_label=='Swarali(AS3469)':
@@ -161,43 +170,64 @@ def authenticate_user():
     
     
     hashed_password = hash_password(user_password)
-    user_name_verification = cursor.execute("SELECT user_name FROM users_new WHERE user_id = ? AND password = ?", (user_id, hashed_password,)).fetchone()
-    print(user_name_verification[0])
-    cursor.execute("SELECT * FROM users_new WHERE user_id = ? AND password = ?", (user_id,hashed_password,))
-    if cursor.fetchone():
-        if Config.simant >=2:
-            Config.user_id='Simant(AS3473)'
-            if user_name_verification[0]==Config.user_id:
-                print(f"Welcome back, {user_id}!")
-                # Proceed to run the voice assistant functionality
-                return True
-            else:
-                print('Sorry you are not ',user_name_verification[0],'. Please try again.')
-                return False
+    if Config.deepfake >=2:
+        print('deepfake voice used')
+        #print(Config.deepfake,' ',Config.ivy_deepfake)
+        return False
+    else:
+        #print(Config.deepfake,' ',Config.ivy_deepfake)
+        user_name_verification = cursor.execute("SELECT user_name FROM users_new WHERE user_id = ? AND password = ?",   (user_id, hashed_password,)).fetchone()
+        if user_name_verification is not None:
+            print(user_name_verification[0])
+        cursor.execute("SELECT * FROM users_new WHERE user_id = ? AND password = ?", (user_id,hashed_password,))
+        if cursor.fetchone():
+            if Config.simant >=2:
+                Config.user_id='Simant(AS3473)'
+                if user_name_verification[0]==Config.user_id:
+                    print(f"Welcome back, {user_id}!")
+                    # Proceed to run the voice assistant functionality
+                    return True
+                else:
+                    print('Sorry you are not ',user_name_verification[0],'. Please try again.')
+                    return False
 
-        elif Config.swarali >=2:
-            Config.user_id='Swarali(AS3469)'
-            if user_name_verification[0]==Config.user_id:
-                print(f"Welcome back, {user_id}!")
-                # Proceed to run the voice assistant functionality
-                return True
+            elif Config.swarali >=2:
+                Config.user_id='Swarali(AS3469)'
+                if user_name_verification[0]==Config.user_id:
+                    print(f"Welcome back, {user_id}!")
+                    # Proceed to run the voice assistant functionality
+                    return True
+                else:
+                    print('Sorry you are not ',user_name_verification[0],'. Please try again.')
+                    return False
+            elif Config.aditya >=2:
+                Config.user_id='Aditya(AS3475)'
+                if user_name_verification[0]==Config.user_id:
+                    print(f"Welcome back, {user_id}!")
+                    # Proceed to run the voice assistant functionality
+                    return True
+                else:
+                    print('Sorry you are not ',user_name_verification[0],'. Please try again.')
+                    Config.simant=0 + Config.ivy_simant
+                    Config.swarali=0 + Config.ivy_swarali
+                    Config.aditya=0 + Config.ivy_aditya
+                    Config.deepfake = 0 + Config.ivy_deepfake
+                    #print(Config.deepfake,' ',Config.ivy_deepfake)
+                    return False
             else:
-                print('Sorry you are not ',user_name_verification[0],'. Please try again.')
-                return False
-        elif Config.aditya >=2:
-            Config.user_id='Aditya(AS3475)'
-            if user_name_verification[0]==Config.user_id:
-                print(f"Welcome back, {user_id}!")
-                # Proceed to run the voice assistant functionality
-                return True
-            else:
-                print('Sorry you are not ',user_name_verification[0],'. Please try again.')
+                Config.simant=0 + Config.ivy_simant
+                Config.swarali=0 + Config.ivy_swarali
+                Config.aditya=0 + Config.ivy_aditya
+                Config.deepfake = 0 + Config.ivy_deepfake
                 return False
         else:
+            print("Authentication failed. Invalid username or password.")
+            Config.simant=0 + Config.ivy_simant
+            Config.swarali=0 + Config.ivy_swarali
+            Config.aditya=0 + Config.ivy_aditya
+            Config.deepfake = 0 + Config.ivy_deepfake
+            #print(Config.deepfake,' ',Config.ivy_deepfake)
             return False
-    else:
-        print("Authentication failed. Invalid username or password.")
-        return False
 
 # Function to check if the user is registered
 def login_or_register():
@@ -243,4 +273,7 @@ def login_or_register():
 # Close database connection when done
 def close_connection():
     conn.close()
+
+if __name__=='__main__':
+    login_or_register()
 

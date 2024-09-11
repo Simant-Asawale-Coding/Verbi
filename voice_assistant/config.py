@@ -59,6 +59,15 @@ class Config:
     simant=0
     swarali=0
 
+    #set ivy call voice counter
+    ivy_simant=0
+    ivy_swarali=0
+    ivy_aditya=0
+
+    #set a deepfake counter and ivy call deepfake counter
+    deepfake=0
+    ivy_deepfake=0
+
     #set user id variable for verifying if voice and id matches
     user_id=''
 
