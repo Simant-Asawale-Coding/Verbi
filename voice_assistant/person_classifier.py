@@ -2,7 +2,7 @@ import joblib
 import tensorflow
 import librosa
 import numpy as np
-from tensorflow.keras.models import load_model
+#from tensorflow.keras.models import load_model
 
 #def Person_classifier(path_to_audio):
 #
@@ -63,8 +63,8 @@ def Person_classifier(path_to_audio):
     # Convert prediction to label
     predicted_label = encoder.inverse_transform(predictions)
     
-    print("Predicted Label:", predicted_label)
-    print('from labels: ', predicted_label[0])
+   # print("Predicted Label:", predicted_label)
+   # print('from labels: ', predicted_label[0])
 
     return predicted_label[0]
 

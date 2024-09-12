@@ -7,6 +7,14 @@ from voice_assistant.config import Config
 from voice_assistant.person_classifier import Person_classifier
 from voice_assistant.voice_deepfake_detector import detect_fake
 import string
+import logging
+from colorama import Fore, init # type: ignore
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Initialize colorama
+init(autoreset=True)
 
 
 
@@ -49,7 +57,7 @@ def record_user_name():
     while not user_name_recorder:
         user_name=input('Please enter your name: ')
         user_name=user_name.lower().capitalize()    
-        print('This is how your name looks: ', user_name)
+        print('---------This is how your name looks: ', user_name,' ---------')
         user_name_satisfaction=user_satisfaction()
         if user_name_satisfaction==False:
             user_name_recorder=False
@@ -70,7 +78,7 @@ def record_user_password():
         # Transcribe the audio file
         user_password = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.PASSWORD_LOCAL, Config.LOCAL_MODEL_PATH)
         user_password = user_password.translate(str.maketrans('', '', string.punctuation)).replace(" ", "").lower()
-        print('This is how your password looks: ', user_password)
+        print('---------This is how your password looks: ', user_password,' ----------')
         user_password_flag=user_satisfaction()
 
         if user_password_flag== False:
@@ -81,30 +89,68 @@ def record_user_password():
     return user_password
 
 def user_satisfaction():
-    print('is it correct?')
-    record_satisfaction(Config.SATISFACTION_LOCAL)
-    transcription_api_key = get_transcription_api_key()
-    # Transcribe the audio file
-    user_response = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.SATISFACTION_LOCAL, Config.LOCAL_MODEL_PATH)
-    if 'yes' in user_response.lower():
-        print('YES')
-        return True
-    else:
-        print('NO')
-        return False
+    yes_or_no_received=False
+    #copy=None
+    while not yes_or_no_received:
+        print('is it correct?')
+        record_satisfaction(Config.SATISFACTION_LOCAL)
+        transcription_api_key = get_transcription_api_key()
+        # Transcribe the audio file
+        user_response = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.SATISFACTION_LOCAL, Config.LOCAL_MODEL_PATH)
+        if 'yes' in user_response.lower():
+            print('you said YES')
+            copy=True
+            yes_or_no_received=True
+            #return True
+        elif 'no' in user_response.lower():
+            print('you said NO')
+            copy=False
+            yes_or_no_received=True
+            #return False
+
+        else: 
+            print('retry')
+            yes_or_no_received=False
+
+    return copy
+        
     
 def user_satisfaction2():
-    print('are you a registered user?')
-    record_satisfaction(Config.SATISFACTION_LOCAL)
-    transcription_api_key = get_transcription_api_key()
-    # Transcribe the audio file
-    user_response = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.SATISFACTION_LOCAL, Config.LOCAL_MODEL_PATH)
-    if 'yes' in user_response.lower():
-        print('YES')
-        return True
-    else:
-        print('NO')
-        return False
+    #print('are you a registered user?')
+    #record_satisfaction(Config.SATISFACTION_LOCAL)
+    #transcription_api_key = get_transcription_api_key()
+    ## Transcribe the audio file
+    #user_response = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.SATISFACTION_LOCAL, Config.LOCAL_MODEL_PATH)
+    #if 'yes' in user_response.lower():
+    #    print('YES')
+    #    return True
+    #else:
+    #    print('NO')
+    #    return False
+    yes_or_no_received2=False
+    #copy=None
+    while not yes_or_no_received2:
+        print('are you a registered user?')
+        record_satisfaction(Config.SATISFACTION_LOCAL)
+        transcription_api_key = get_transcription_api_key()
+        # Transcribe the audio file
+        user_response = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.SATISFACTION_LOCAL, Config.LOCAL_MODEL_PATH)
+        if 'yes' in user_response.lower():
+            print('you said YES')
+            copy2=True
+            yes_or_no_received2=True
+            #return True
+        elif 'no' in user_response.lower():
+            print('you said NO')
+            copy2=False
+            yes_or_no_received2=True
+            #return False
+
+        else: 
+            print('retry')
+            yes_or_no_received2=False
+
+    return copy2
 
 # Function to register new user
 def register_user():
@@ -129,7 +175,7 @@ def register_user():
         hashed_password = hash_password(user_password)
         cursor.execute("INSERT INTO users_new (user_id,user_name,password) VALUES (?, ?, ?)", (user_id, user_name, hashed_password))
         conn.commit()
-        print("Registration successful! You can now log in.")
+        logging.info("Registration successful! You can now log in.")
         return True
             
         

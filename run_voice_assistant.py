@@ -2,7 +2,7 @@
 
 import logging
 import time
-from colorama import Fore, init
+from colorama import Fore, init # type: ignore
 from voice_assistant.audio import record_audio, play_audio, listen_audio #, #listener_main
 from voice_assistant.transcription import transcribe_audio
 from voice_assistant.response_generation import generate_response
@@ -12,6 +12,7 @@ from voice_assistant.config import Config
 from voice_assistant.api_key_manager import get_transcription_api_key, get_response_api_key, get_tts_api_key
 from voice_assistant.person_classifier import Person_classifier
 from voice_assistant.database import login_or_register, close_connection
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -33,7 +34,7 @@ def main():
          You are friendly and fun and you will help the users with their requests.
          Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. """}
     ]
-    flag,chat_history=listen_audio(Config.LISTEN_AUDIO)
+    flag=listen_audio(Config.LISTEN_AUDIO)
     # Start the wake word listener in a separate thread
 
     #Autheticate the user
@@ -42,13 +43,23 @@ def main():
     #    authenticated = login_or_register()
     authenticated = login_or_register()
     close_connection()
-    
+
     if flag==True and authenticated==True:
             while True:
              try:
 
                 # Record audio from the microphone and save it as 'test.wav'
                 record_audio(Config.INPUT_AUDIO)
+
+                 
+                 # Use deepfake detector
+                #result = detect_fake(Config.INPUT_AUDIO)
+                #print(f"Detection result: {result}")
+               #
+                #if result == "FAKE":
+                #    logging.warning(Fore.YELLOW + "Warning: The audio is detected as FAKE!" + Fore.RESET)
+                #    continue  # Skip processing if audio is detected as fake
+               
 
                 #person classifier
                 path_audio=Config.INPUT_AUDIO

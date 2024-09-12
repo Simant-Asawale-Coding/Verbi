@@ -123,6 +123,7 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                     print(deepfake_label)
                     if deepfake_label == "FAKE":
                         Config.deepfake=Config.deepfake+1
+                        Config.ivy_deepfake=Config.ivy_deepfake+1
                     if user_label=='Simant(AS3473)':
                         Config.simant=Config.simant+1
                         Config.ivy_simant=Config.ivy_simant+1
@@ -139,35 +140,35 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                     #if user_label==Config.User :
                         
                         #logging.info(Fore.LIGHTCYAN_EX+'Welcome '+ user_label.capitalize() + Fore.RESET)
-                    chat_history = [
-            {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
-             You are friendly and fun and you will help the users with their requests.
-             Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. u only generate 4 to 5 word replies. """}
-        ]
-                    # Append the user's input to the chat history
-                    chat_history.append({"role": "user", "content": user_input})
-                        # Get the API key for response generation
-                    response_api_key = get_response_api_key()
-                    # Generate a response
-                    response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.    LOCAL_MODEL_PATH)
-                    # Append the assistant's response to the chat history
-                    chat_history.append({"role": "assistant", "content": response_text})
-                    # Determine the output file format based on the TTS model
-                    if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts' or     Config.TTS_MODEL == 'cartesia':
-                        output_file = 'output.mp3'
-                    else:
-                        output_file = 'output.wav'
-                    # Get the API key for TTS
-                    tts_api_key = get_tts_api_key()
-                    # Convert the response text to speech and save it to the appropriate file
-                    text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
-                    # Play the generated speech audio
-                    if Config.TTS_MODEL=="cartesia":
-                        pass
-                    else:
-                        play_audio(output_file)
+        #            chat_history = [
+        #    {"role": "system", "content": """ You are a helpful Assistant called Ivy. 
+        #     You are friendly and fun and you will help the users with their requests.
+        #     Your answers are short and concise, on point and few worded. Also u generate text as if u are talking, no need of adding special expressions for the users to read and understand the tone and no special symbols too. Talk in a gentle and friendly way. u only generate 4 to 5 word replies. """}
+        #]
+        #            # Append the user's input to the chat history
+        #            chat_history.append({"role": "user", "content": user_input})
+        #                # Get the API key for response generation
+        #            response_api_key = get_response_api_key()
+        #            # Generate a response
+        #            response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.    LOCAL_MODEL_PATH)
+        #            # Append the assistant's response to the chat history
+        #            chat_history.append({"role": "assistant", "content": response_text})
+        #            # Determine the output file format based on the TTS model
+        #            if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts' or     Config.TTS_MODEL == 'cartesia':
+        #                output_file = 'output.mp3'
+        #            else:
+        #                output_file = 'output.wav'
+        #            # Get the API key for TTS
+        #            tts_api_key = get_tts_api_key()
+        #            # Convert the response text to speech and save it to the appropriate file
+        #            text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
+        #            # Play the generated speech audio
+        #            if Config.TTS_MODEL=="cartesia":
+        #                pass
+        #            else:
+        #                play_audio(output_file)
                     
-                    return True, chat_history
+                    return True #, chat_history
                 
         except sr.WaitTimeoutError:
             logging.warning(f"Listening timed out, retrying... ({attempt + 1}/{retries})")
@@ -270,7 +271,7 @@ def record_password(file_path, timeout=20, phrase_time_limit=4, retries=3, energ
             with sr.Microphone() as source:
                 logging.info(Fore.YELLOW+"Calibrating for ambient noise..."  + Fore.RESET)
                 recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
-                logging.info(Fore.RED+"Please speak your password clearly..." + Fore.RESET)
+                logging.info(Fore.BLUE+"Please speak your password clearly..." + Fore.RESET)
                 # Listen for the first phrase and extract it into audio data
                 audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
                 logging.info(Fore.GREEN+"Password recording complete" + Fore.RESET)
@@ -315,7 +316,7 @@ def record_userid(file_path, timeout=20, phrase_time_limit=4, retries=3, energy_
             with sr.Microphone() as source:
                 logging.info(Fore.YELLOW+"Calibrating for ambient noise..."  + Fore.RESET)
                 recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
-                logging.info(Fore.RED+"Please speak your id clearly..." + Fore.RESET)
+                logging.info(Fore.BLUE+"Please speak your ID clearly..." + Fore.RESET)
                 # Listen for the first phrase and extract it into audio data
                 audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
                 logging.info(Fore.GREEN+"ID recording complete" + Fore.RESET)
@@ -348,7 +349,7 @@ def record_satisfaction(file_path, timeout=15, phrase_time_limit=2, retries=3, e
             with sr.Microphone() as source:
                 logging.info(Fore.YELLOW+"Calibrating for ambient noise..."  + Fore.RESET)
                 recognizer.adjust_for_ambient_noise(source, duration=calibration_duration)
-                logging.info(Fore.RED+"Please say yes or no..." + Fore.RESET)
+                logging.info(Fore.WHITE+"Please say " + Fore.BLUE + "yes" + Fore.WHITE + " or" + Fore.BLUE + " no..." + Fore.RESET)
                 # Listen for the first phrase and extract it into audio data
                 audio_data = recognizer.listen(source, timeout=timeout, phrase_time_limit=phrase_time_limit)
                 logging.info(Fore.GREEN+"recording complete" + Fore.RESET)
