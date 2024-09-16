@@ -71,6 +71,9 @@ class Config:
     #set user id variable for verifying if voice and id matches
     user_id=''
 
+    #set authenticated flag to avoid calling classifier in listen audio
+    authenticated=False
+
     @staticmethod
     def validate_config():
         """

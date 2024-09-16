@@ -73,7 +73,7 @@ import threading
 #            break
 
 ###################################################
-def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy_threshold=2000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
+def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy_threshold=4000, pause_threshold=1, phrase_threshold=0.1, dynamic_energy_threshold=True, calibration_duration=1):
     """
     Record audio from the microphone and save it as an MP3 file.
     
@@ -118,9 +118,12 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                 
                 if "ivy" in user_input.lower() or "iv" in user_input.lower():
                     logging.info(Fore.BLUE+'Wake up word detected' + Fore.RESET)
+                    
+                    
                     user_label=Person_classifier(file_path)
                     deepfake_label= detect_fake(file_path)
-                    print(deepfake_label)
+                        
+                        
                     if deepfake_label == "FAKE":
                         Config.deepfake=Config.deepfake+1
                         Config.ivy_deepfake=Config.ivy_deepfake+1
@@ -134,9 +137,10 @@ def listen_audio(file_path, timeout=30, phrase_time_limit=3, retries=999, energy
                         Config.aditya=Config.aditya+1
                         Config.ivy_aditya=Config.ivy_aditya+1
 
-                    print('Simant:',Config.simant,' Swarali:',Config.swarali,' Aditya:',Config.aditya)
-                    print('IVY Simant:',Config.ivy_simant,' IVY Swarali:',Config.ivy_swarali,' IVY Aditya:',Config.ivy_aditya)
-                    
+                    if Config.authenticated==False:
+                        print('Simant:',Config.simant,' Swarali:',Config.swarali,' Aditya:',Config.aditya)
+                        print('IVY Simant:',Config.ivy_simant,' IVY Swarali:',Config.ivy_swarali,' IVY Aditya:',Config.ivy_aditya)
+                        print('deepfake or real: ',deepfake_label)
                     #if user_label==Config.User :
                         
                         #logging.info(Fore.LIGHTCYAN_EX+'Welcome '+ user_label.capitalize() + Fore.RESET)

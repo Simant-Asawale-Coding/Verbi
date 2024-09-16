@@ -97,7 +97,7 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
             stream = None
 
             # Buffer to collect audio data for saving
-            audio_data = []
+            #audio_data = []
 
             # Generate and stream audio
             for output in client.tts.sse(
@@ -123,9 +123,9 @@ def text_to_speech(model, api_key, text, output_file_path, local_model_path=None
 
             # Save the audio data to a file
             # Save the collected audio data to a file
-            audio_bytes = b''.join(audio_data)  # Concatenate all audio buffers into one
-            sf.write(output_file_path, audio_bytes, rate)  # Save as a WAV file
-            print(f"Audio saved to {output_file_path}")
+            #audio_bytes = b''.join(audio_data)  # Concatenate all audio buffers into one
+            #sf.write(output_file_path, audio_bytes, rate)  # Save as a WAV file
+            #print(f"Audio saved to {output_file_path}")
 
 
 

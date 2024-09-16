@@ -45,112 +45,121 @@ def main():
     close_connection()
 
     if flag==True and authenticated==True:
+            logging.info(Fore.CYAN+'U can now say -IVY- and ivy will start listening'+Fore.RESET)
+            Config.authenticated=True
             while True:
-             try:
 
-                # Record audio from the microphone and save it as 'test.wav'
-                record_audio(Config.INPUT_AUDIO)
+                listen_flag=listen_audio(Config.LISTEN_AUDIO)
 
-                 
-                 # Use deepfake detector
-                #result = detect_fake(Config.INPUT_AUDIO)
-                #print(f"Detection result: {result}")
-               #
-                #if result == "FAKE":
-                #    logging.warning(Fore.YELLOW + "Warning: The audio is detected as FAKE!" + Fore.RESET)
-                #    continue  # Skip processing if audio is detected as fake
-               
+                if listen_flag==True:
 
-                #person classifier
-                path_audio=Config.INPUT_AUDIO
-                print(Person_classifier(path_to_audio=path_audio))
-                # Get the API key for transcription
-                transcription_api_key = get_transcription_api_key()
 
-                # Transcribe the audio file
-                user_input = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.INPUT_AUDIO, Config.LOCAL_MODEL_PATH)
+                    while True:
+                     try:
 
-                # Check if the transcription is empty and restart the recording if it is. This check will avoid empty requests if vad_filter is used in the fastwhisperapi.
-                if not user_input:
-                    logging.info("No transcription was returned. Starting recording again.")
-                    continue
-                logging.info(Fore.GREEN + "You said: " + user_input + Fore.RESET)
+                        # Record audio from the microphone and save it as 'test.wav'
+                        record_audio(Config.INPUT_AUDIO)
 
-                # Check if the user wants to exit the program
-                if "goodbye" in user_input.lower() or "arrivederci" in user_input.lower():
-                    # Append the user's input to the chat history
-                    chat_history.append({"role": "user", "content": user_input})
 
-                    # Get the API key for response generation
-                    response_api_key = get_response_api_key()
+                         # Use deepfake detector
+                        #result = detect_fake(Config.INPUT_AUDIO)
+                        #print(f"Detection result: {result}")
+                       #
+                        #if result == "FAKE":
+                        #    logging.warning(Fore.YELLOW + "Warning: The audio is detected as FAKE!" + Fore.RESET)
+                        #    continue  # Skip processing if audio is detected as fake
 
-                    # Generate a response
-                    response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.    LOCAL_MODEL_PATH)
-                    logging.info(Fore.CYAN + "Response: " + response_text + Fore.RESET)
 
-                    # Append the assistant's response to the chat history
-                    chat_history.append({"role": "assistant", "content": response_text})
+                        #person classifier
+                        path_audio=Config.INPUT_AUDIO
+                        print(Person_classifier(path_to_audio=path_audio))
+                        # Get the API key for transcription
+                        transcription_api_key = get_transcription_api_key()
 
-                    # Determine the output file format based on the TTS model
-                    if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts' or     Config.TTS_MODEL == 'cartesia':
-                        output_file = 'output.mp3'
-                    else:
-                        output_file = 'output.wav'
+                        # Transcribe the audio file
+                        user_input = transcribe_audio(Config.TRANSCRIPTION_MODEL, transcription_api_key, Config.    INPUT_AUDIO,    Config.LOCAL_MODEL_PATH)
 
-                    # Get the API key for TTS
-                    tts_api_key = get_tts_api_key()
+                        # Check if the transcription is empty and restart the recording if it is. This check will avoid     empty   requests if vad_filter is used in the fastwhisperapi.
+                        if not user_input:
+                            logging.info("No transcription was returned. Starting recording again.")
+                            continue
+                        logging.info(Fore.GREEN + "You said: " + user_input + Fore.RESET)
 
-                    # Convert the response text to speech and save it to the appropriate file
-                    text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
+                        # Check if the user wants to exit the program
+                        if "goodbye" in user_input.lower() or "arrivederci" in user_input.lower():
+                            # Append the user's input to the chat history
+                            chat_history.append({"role": "user", "content": user_input})
 
-                    # Play the generated speech audio
-                    if Config.TTS_MODEL=="cartesia":
-                        pass
-                    else:
-                        play_audio(output_file)            
-                    break
+                            # Get the API key for response generation
+                            response_api_key = get_response_api_key()
 
-                # Append the user's input to the chat history
-                chat_history.append({"role": "user", "content": user_input})
+                            # Generate a response
+                            response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history,    Config.        LOCAL_MODEL_PATH)
+                            logging.info(Fore.CYAN + "Response: " + response_text + Fore.RESET)
 
-                # Get the API key for response generation
-                response_api_key = get_response_api_key()
+                            # Append the assistant's response to the chat history
+                            chat_history.append({"role": "assistant", "content": response_text})
 
-                # Generate a response
-                response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.LOCAL_MODEL_PATH)
-                logging.info(Fore.CYAN + "Response: " + response_text + Fore.RESET)
+                            # Determine the output file format based on the TTS model
+                            if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL ==  'melotts'    or     Config.TTS_MODEL == 'cartesia':
+                                output_file = 'output.mp3'
+                            else:
+                                output_file = 'output.wav'
 
-                # Append the assistant's response to the chat history
-                chat_history.append({"role": "assistant", "content": response_text})
+                            # Get the API key for TTS
+                            tts_api_key = get_tts_api_key()
 
-                # Determine the output file format based on the TTS model
-                if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts' or Config.TTS_MODEL == 'cartesia':
-                    output_file = 'output.mp3'
-                else:
-                    output_file = 'output.wav'
+                            # Convert the response text to speech and save it to the appropriate file
+                            text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.   LOCAL_MODEL_PATH)
 
-                # Get the API key for TTS
-                tts_api_key = get_tts_api_key()
+                            # Play the generated speech audio
+                            if Config.TTS_MODEL=="cartesia":
+                                pass
+                            else:
+                                play_audio(output_file)            
+                            break
 
-                # Convert the response text to speech and save it to the appropriate file
-                text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
+                        # Append the user's input to the chat history
+                        chat_history.append({"role": "user", "content": user_input})
 
-                # Play the generated speech audio
-                if Config.TTS_MODEL=="cartesia":
-                    pass
-                else:
-                    play_audio(output_file)
+                        # Get the API key for response generation
+                        response_api_key = get_response_api_key()
 
-                # Clean up audio files
-                # delete_file(Config.INPUT_AUDIO)
-                # delete_file(output_file)
+                        # Generate a response
+                        response_text = generate_response(Config.RESPONSE_MODEL, response_api_key, chat_history, Config.        LOCAL_MODEL_PATH)
+                        logging.info(Fore.CYAN + "Response: " + response_text + Fore.RESET)
 
-             except Exception as e:
-                 logging.error(Fore.RED + f"An error occurred: {e}" + Fore.RESET)
-                 delete_file(Config.INPUT_AUDIO)
-                 if 'output_file' in locals():
-                     delete_file(output_file)
-                 time.sleep(1)
+                        # Append the assistant's response to the chat history
+                        chat_history.append({"role": "assistant", "content": response_text})
+
+                        # Determine the output file format based on the TTS model
+                        if Config.TTS_MODEL == 'openai' or Config.TTS_MODEL == 'elevenlabs' or Config.TTS_MODEL == 'melotts'    or     Config.TTS_MODEL == 'cartesia':
+                            output_file = 'output.mp3'
+                        else:
+                            output_file = 'output.wav'
+
+                        # Get the API key for TTS
+                        tts_api_key = get_tts_api_key()
+
+                        # Convert the response text to speech and save it to the appropriate file
+                        text_to_speech(Config.TTS_MODEL, tts_api_key, response_text, output_file, Config.LOCAL_MODEL_PATH)
+
+                        # Play the generated speech audio
+                        if Config.TTS_MODEL=="cartesia":
+                            pass
+                        else:
+                            play_audio(output_file)
+
+                        # Clean up audio files
+                        # delete_file(Config.INPUT_AUDIO)
+                        # delete_file(output_file)
+
+                     except Exception as e:
+                         logging.error(Fore.RED + f"An error occurred: {e}" + Fore.RESET)
+                         delete_file(Config.INPUT_AUDIO)
+                         if 'output_file' in locals():
+                             delete_file(output_file)
+                         time.sleep(1)
          
 
    
